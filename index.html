@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+ <head>
+  
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Envio de mensajes SMS</title>
+		<!--  <script>
+		</script> &nbsp &nbsp  &nbsp &nbsp &nbsp &nbsp &nbsp   -->
+		<link rel="stylesheet" type="text/css" href="estilo.css">
+		<script type="text/javascript" src="validar.js"></script> 
+		<script type="text/javascript" src="contar.js"></script> 
+ </head>
+		<body>
+  
+			<div id="container">
+   
+				<h1></h1>
+				<img src="blanco1.png" alt="logo" />
+				<img src="logo.png" alt="logo" /> <br> <br> <br>
+	
+			 <form action="send.php" method="post" onsubmit="validar();">
+				<ul>
+					<li>
+						<label for="phoneNumber">Celular:</label>
+						<input type="text" name="phoneNumber" id="phoneNumber" style="background-color: #AED6F1;" placeholder="ingrese número"/></br></br>
+						<input type="file" name="excel" id="excel"  >
+					</li>
+	   
+					<li>
+						  <div id="cont"><!-- --><br>
+							<label for="smsMessage" >Mensaje</label> <br>
+							<textarea name="smsMessage" id="smsMessage" style="background-color: #AED6F1;" cols="78" rows="10" onKeyDown="contar()" onKeyUp="contar()"></textarea> 
+							<a>Caracteres restantes: <input type="tel" disabled size="3" value="120" id="contador"> </a> <br> <br>
+						  </div><!-- --> 
+					</li>
+		
+							<p><input type="submit" name="sendMessage" id="sendMessage" value="Enviar Mensaje"  ></p>
+							<img src="blanco.png" alt="logo" /> 
+							<img src="poligresa.png" alt="logo" />
+							<p> Desarrollado por Grupo Poligresa </p>
+	 
+	            </ul>
+	
+             </form>
+            </div>
+        </body>
+</html>
