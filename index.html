@@ -17,23 +17,23 @@
 				<img src="blanco1.png" alt="logo" />
 				<img src="logo.png" alt="logo" /> <br> <br> <br>
 	
-			 <form action="send.php" method="post" onsubmit="validar();">
+			 <form action="send.php" method="post" enctype="multipart/form-data">
 				<ul>
 					<li>
 						<label for="phoneNumber">Celular:</label>
-						<input type="text" name="phoneNumber" id="phoneNumber" style="background-color: #AED6F1;" placeholder="ingrese número"/></br></br>
+						<input type="number"  name="phoneNumber" id="phoneNumber" style="background-color: #AED6F1;" placeholder="ingrese número"/></br></br>
 						<input type="file" name="excel" id="excel"  >
 					</li>
 	   
 					<li>
-						  <div id="cont"><!-- --><br>
+						  <div id="cont"><br>
 							<label for="smsMessage" >Mensaje</label> <br>
 							<textarea name="smsMessage" id="smsMessage" style="background-color: #AED6F1;" cols="78" rows="10" onKeyDown="contar()" onKeyUp="contar()"></textarea> 
 							<a>Caracteres restantes: <input type="tel" disabled size="3" value="120" id="contador"> </a> <br> <br>
-						  </div><!-- --> 
+						  </div 
 					</li>
 		
-							<p><input type="submit" name="sendMessage" id="sendMessage" value="Enviar Mensaje"  ></p>
+							<p><input type="submit" value="Enviar Mensaje"  ></p>
 							<img src="blanco.png" alt="logo" /> 
 							<img src="poligresa.png" alt="logo" />
 							<p> Desarrollado por Grupo Poligresa </p>

@@ -1,120 +1,95 @@
 <?php
-
-	$archivo = $_POST ["excel"];
-    $archivo = fopen($archivo,'r');
-	$numlinea = 0;
-	$cad = '"'.$_POST ["smsMessage"].'"';
-	$num = '"'.$_POST ["phoneNumber"].'"';
-	
-	
-	while ($linea = fgets($archivo)) 
-	{
-		
-		$aux[] = $linea;
-		$numlinea++;
-	}
-	
-	//$texto = substr($cad,0,120);
-	//$var = filter_var($texto, FILTER_SANITIZE_URL, FILTER_NULL_ON_FAILURE);
-
-/*
- * Usage: pass parameters through line command like example below
- * example:
- *    php send.php 0121212123 "Hello World!"
- * @parameters receiver message
- * @author Iivo Raitahila
- * @author Eduardo Fontinelle
- * This project was perfectly written by Iivo Raitahila and forked and adapted to my use. Enjoy!
- */
-
-$debug = true;
-error_reporting(E_ALL);
-if ($debug) {
-    ini_set('display_errors', 1);
-} else {
-    ini_set('display_errors', 0);
-}
-
-/* Allow the script to hang around waiting for connections. */
-set_time_limit(0);
- /* Turn on implicit output flushing so we see what we're getting
- * as it comes in. */
-ob_implicit_flush();
-
-require_once dirname(__FILE__).'/models/message.php';
-require_once dirname(__FILE__).'/classes/goip.php';
-//$settings = require dirname(__FILE__).'/settings.php';
-
-$settings = array('goipAddress' => '192.168.0.102', //The IP address of the GOIP
-                  'goipPort' => '10991', //The port that GOIP listens to (maybe 9991, find out using keepalive.php 
-                  'goipPassword' => 'admin' //The password set in GOIP management
-				  );
-
-
-$goip = new FSG\Goip($settings['goipAddress'], $settings['goipPort'], $settings['goipPassword']);
-
-//foreach($aux as $comando)
-//{
-	//$argv = array("", $comando, $_POST ["smsMessage"]);
-	
-//}
-
-	$mensaje = array (
-                  array("", $aux[0], $cad),
-				  array("", $aux[1], $cad),
-				  array("", $aux[2], $cad)
-                 );
-				 
-				 echo gettype($mensaje);
-				 echo strlen($mensaje);
-				 
-	//for($i=0; $i<count($aux); $i++)
-	//{
-	 //$mensaje = array("", $aux[$i], $cad);	
-		
-	//}
-
-foreach($mensaje as $men)
+$cad = '"'.$_POST["smsMessage"].'"';
+if(isset($cad) && $cad != "")
 {
-	$argv = $men;
-	//print_r($argv);
-	//die();
-	 echo gettype($argv);
-				 echo strlen($argv);
+		require 'classes/PHPExcel.php';
 
-//$argv = array("","","");/*array para tomar numero y mensaje*/
+	/* Allow the script to hang around waiting for connections. */
+	set_time_limit(0);
+ 	/* Turn on implicit output flushing so we see what we're getting
+ 	* as it comes in. */
+	ob_implicit_flush();
 
-if (count($argv) != 3) {
-    exit("
-...................................................................
-* * Wrong use * *
-  Example how to use this script:
+	require_once dirname(__FILE__).'/models/message.php';
+	require_once dirname(__FILE__).'/classes/goip.php';
 
-$ php send.php <phone number> <message>
+	//Network settings
+	$settings = array('goipAddress' => '192.168.0.102', //The IP address of the GOIP
+    	              'goipPort' => '10991', //The port that GOIP listens to (maybe 9991, find out using keepalive.php 
+        	          'goipPassword' => 'admin' //The password set in GOIP management
+					  );
 
-................................................................... \n");
-}
+	//GOIP object creation					  
+	$goip = new FSG\Goip($settings['goipAddress'], $settings['goipPort'], $settings['goipPassword']);
 
-
-
-$message = new FSG\MessageVO(rand(1000, 9999), $argv[1], $argv[2]);
-
-
-$result = $goip->sendSMS($message);
-
-if($result === true) {
-    //echo =  "Mensaje enviado";
-	//include 'aviso.html';
-	$mens[][aviso]="enviado";
-} else {
-    //echo = $result;
-	//include 'nosms.html';
-	$mens[][aviso]="no enviado";
-}
-   
-}
+	//die(var_dump($_FILES));
+	//Get data fields from the index.html
 	
+	$num = '"'.$_POST["phoneNumber"].'"';
 
-$goip->close();
+	//Send individual message if the user wrote a number in the individual phone number form field
+	if(isset($num) && $num != "")
+	{
+		$message = new FSG\MessageVO(rand(1000, 9999), $num, $cad);
+		$result = $goip->sendSMS($message);
+		if($result === true) {
+   			echo "Mensaje enviado";
+			include 'aviso.html';
+			$mens[][aviso]="enviado";
+		}
+		else {
+   			echo $result;
+			include 'nosms.html';
+			$mens[][aviso]="no enviado";
+		}
+	}
 
+	//Excel file reading and messages sending from the numbers in the excel file
+	if (isset($_FILES['excel']) && ($_FILES['excel']['error']==0)) {
+		$numbers = array();
+		require_once 'Excel/reader.php';
+		$tmpfname = $_FILES['excel']['tmp_name'];
+		$excelReader = PHPExcel_IOFactory::createReaderForFile($tmpfname);
+		$excelObj = $excelReader->load($tmpfname);
+		$worksheet = $excelObj->getSheet(0);
+		$lastRow = $worksheet->getHighestRow();
+
+		//Read every number into an array
+		for ($row = 1; $row <= $lastRow; $row++) {
+		 	array_push($numbers, $worksheet->getCell('A'.$row)->getValue());
+		}
+		
+		//Loop the numbers' array and sending the message to every number
+		foreach($numbers as $ni)
+		{
+			$message = new FSG\MessageVO(rand(1000, 9999), $ni, $cad);
+			$result = $goip->sendSMS($message);
+
+			if($result === true) {
+    			echo "Mensaje enviado";
+				include 'aviso.html';
+				$mens[][aviso]="enviado";
+			}
+			else {
+    			echo $result;
+				include 'nosms.html';
+				$mens[][aviso]="no enviado";
+			}
+		}
+	}
+
+	$debug = true;
+	error_reporting(E_ALL);
+	if ($debug) {
+	    ini_set('display_errors', 1);
+	} else {
+	    ini_set('display_errors', 0);
+	}
+
+	$goip->close();
 	print_r($mens);
+}
+else
+{
+	echo("No escribio ningun mensaje para enviar. Por favor retroceda y vuelva a intentarlo.")
+}
